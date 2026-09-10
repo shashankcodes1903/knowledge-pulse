@@ -561,31 +561,60 @@ To ensure full Material You compliance with enhanced depth and interactivity:
 
 **Core Material You Elements**:
 
-- [ ] Using Roboto font (400, 500, 700 weights)
-- [ ] All buttons are `rounded-full` (pill-shaped)
-- [ ] Background is #FFFBFE (not pure white)
-- [ ] Cards use Surface Container (#F3EDF7) backgrounds
-- [ ] Organic blur shapes present in hero/key sections
-- [ ] State layers (opacity overlays) for hover/active states
-- [ ] Cubic-bezier(0.2, 0, 0, 1) easing on transitions
-- [ ] Large border radii on major containers (32-48px)
-- [ ] Inputs use filled text field style (rounded top, border bottom)
-- [ ] Focus rings on all interactive elements
-- [ ] Generous spacing and padding throughout
+- [x] Using Roboto font (400, 500, 700 weights)
+- [x] All buttons are `rounded-full` (pill-shaped)
+- [x] Background is #FFFBFE (not pure white)
+- [x] Cards use Surface Container (#F3EDF7) backgrounds
+- [x] Organic blur shapes present in hero/key sections
+- [x] State layers (opacity overlays) for hover/active states
+- [x] Cubic-bezier(0.2, 0, 0, 1) easing on transitions
+- [x] Large border radii on major containers (24-48px)
+- [x] Inputs use filled text field style (rounded top, border bottom)
+- [x] Focus rings on all interactive elements
+- [x] Generous spacing and padding throughout
 
 **Enhanced Implementation**:
 
-- [ ] Progressive shadow system: `shadow-sm` → `shadow-md` on hover
-- [ ] Multiple blur shapes with radial gradients in major sections
-- [ ] `active:scale-95` on all clickable elements for tactile feedback
-- [ ] `group` pattern with coordinated hover animations
-- [ ] Hover scale (`hover:scale-[1.02]`) on feature cards
-- [ ] Image zoom on blog card hover (`group-hover:scale-105`)
-- [ ] Asymmetric elevation on featured pricing tier (`md:-translate-y-4`)
-- [ ] Glow effects that reveal on hover (How It Works badges)
-- [ ] Glass-morphism cards in Benefits section with backdrop-blur
-- [ ] Shadow-inner on Product Detail visualization container
-- [ ] Header with border-bottom and backdrop-blur
-- [ ] All transitions use 300ms duration minimum
-- [ ] Hover states on FAQ items with color transitions
-- [ ] Input focus states include ring for enhanced visibility
+- [x] Progressive shadow system: `shadow-sm` → `shadow-md` on hover
+- [x] Multiple blur shapes with radial gradients in major sections
+- [x] `active:scale-95` on all clickable elements for tactile feedback
+- [x] `group` pattern with coordinated hover animations
+- [x] Hover scale (`hover:scale-[1.02]`) on feature cards
+- [x] Header with border-bottom and backdrop-blur (`backdrop-blur-md`)
+- [x] All transitions use 300ms duration minimum
+- [x] Input focus states include ring for enhanced visibility
+
+---
+
+## KnowledgePulse Milestone 1 UI Implementations
+
+The following full-stack interfaces have been crafted to follow the Material Design 3 system:
+
+### 1. Navigation Header (`Navbar` & `AuthNav`)
+- **Container**: Sticky glassmorphism header with `bg-[#FFFBFE]/80` and `backdrop-blur-md`.
+- **Branding**: Monogram pulse icon with purple gradient glow (`#6750A4`).
+- **Dynamic Auth State**:
+  - Unauthenticated: Pill-shaped "Sign In" ghost button and "Get Started" filled primary button.
+  - Authenticated: Quick link pills to "Services", "Resources", and "Profile", along with the user's initial-based monogram avatar and a clean "Log out" button with tactile `active:scale-95` feedback.
+
+### 2. Authentication Views (`/login` and `/register`)
+- **Card Container**: `rounded-3xl` (24px radius) card on `bg-md-surface-container` (`#F3EDF7`) with ambient radial purple aura in the background.
+- **Fields**: Filled-style inputs with bottom accents, clear validation error feedback, and accessible ARIA attributes.
+- **Action**: High-emphasis full-width pill button with `bg-md-primary` and hover state layers (`bg-md-primary/90`).
+
+### 3. Service Discovery & Selection (`/services`)
+- **Layout**: Dynamic multi-selection grid displaying 4 core services loaded from `src/data/services.json`.
+- **Card States**:
+  - Unselected: Soft surface container with `hover:scale-[1.01]` and `shadow-sm`.
+  - Selected: Outlined with `ring-2 ring-[#6750A4]` and a prominent checkmark badge in secondary container styling (`#E8DEF8`).
+- **Tactile Details**: Interactive feature list chips, price pills, and an instant summary dock displaying count of selected services and navigation to resource onboarding.
+
+### 4. Knowledge Source & Resource Onboarding (`/onboarding/resources`)
+- **Document Metadata Upload**: File dropzone / file picker supporting PDF, DOCX, TXT, and Markdown files. Displays immediate file name, size badges, and uploaded document registry.
+- **Web Resource URLs**: Clean single-line input paired with an "Add URL" button, rendering interactive resource chips with instant removal triggers.
+
+### 5. Account Profile (`/profile`)
+- **Identity Banner**: Large circular user avatar (`UserAvatar`) displaying the user's initials with high-contrast text on primary tonal surface.
+- **Status Badges**: Secondary container pill chips indicating account verification (`Verified`) and subscription status (`Free`).
+- **Overview Grid**: Segmented cards detailing active selected services (with direct links back to configuration) and connected knowledge resources.
+

@@ -8,16 +8,13 @@ import {
   ChevronRight,
   FileText,
   Lightbulb,
-  Menu,
   MessageSquare,
   Search,
   Sparkles,
   TrendingUp,
   Upload,
-  X,
-} from "lucide-react"
-import Link from "next/link";
-import { useState } from "react"
+} from "lucide-react";
+import { Navbar } from "@/components/navbar/Navbar";
 
 const insights = [
   {
@@ -47,104 +44,9 @@ const insights = [
 ]
 
 export default function KnowledgePulseHome() {
-  const [mobileOpen, setMobileOpen] = useState(false)
-
   return (
     <div className="min-h-screen bg-white text-slate-950">
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <a href="#" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
-              <Sparkles className="h-4.5 w-4.5" />
-            </div>
-
-            <span className="text-lg font-bold tracking-tight">
-              Knowledge<span className="text-indigo-600">Pulse</span>
-            </span>
-          </a>
-
-          <nav className="hidden items-center gap-8 md:flex">
-            <a
-              href="#product"
-              className="text-sm font-medium text-slate-600 transition hover:text-slate-950"
-            >
-              Product
-            </a>
-            <a
-              href="#how-it-works"
-              className="text-sm font-medium text-slate-600 transition hover:text-slate-950"
-            >
-              How it works
-            </a>
-            <a
-              href="#insights"
-              className="text-sm font-medium text-slate-600 transition hover:text-slate-950"
-            >
-              Insights
-            </a>
-            <a
-              href="#features"
-              className="text-sm font-medium text-slate-600 transition hover:text-slate-950"
-            >
-              Features
-            </a>
-          </nav>
-
-          <div className="hidden items-center gap-3 md:flex">
-            <Link href="/login" className="px-4 py-2 text-sm font-semibold text-slate-700 transition hover:text-slate-950">
-              Sign in
-            </Link>
-
-            <Link href="/signup" className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-600">
-              Get started
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="rounded-lg p-2 text-slate-700 md:hidden"
-            aria-label="Toggle navigation"
-          >
-            {mobileOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
-        </div>
-
-        {mobileOpen && (
-          <div className="border-t border-slate-200 bg-white px-4 py-5 md:hidden">
-            <nav className="flex flex-col gap-1">
-              {["Product", "How it works", "Insights", "Features"].map(
-                (item) => (
-                  <a
-                    key={item}
-                    href={`#${item.toLowerCase().replaceAll(" ", "-")}`}
-                    onClick={() => setMobileOpen(false)}
-                    className="rounded-lg px-3 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                  >
-                    {item}
-                  </a>
-                )
-              )}
-
-              <div className="mt-3 border-t border-slate-100 pt-4">
-                <button className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-700">
-                  Sign in
-                </button>
-
-                <button className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white">
-                  Get started
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            </nav>
-          </div>
-        )}
-      </header>
+      <Navbar />
 
       <main>
         {/* Hero */}
@@ -422,7 +324,7 @@ export default function KnowledgePulseHome() {
               </p>
 
               <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                Don't just deploy a chatbot.
+                Don&apos;t just deploy a chatbot.
                 <span className="text-slate-400">
                   {" "}
                   Learn from everything it hears.
@@ -502,8 +404,8 @@ export default function KnowledgePulseHome() {
               </h2>
 
               <p className="mt-5 text-base leading-7 text-slate-400">
-                KnowledgePulse doesn't simply count conversations. It
-                identifies what is changing, what's unresolved and what your
+                KnowledgePulse doesn&apos;t simply count conversations. It
+                identifies what is changing, what&apos;s unresolved and what your
                 customers are struggling with most.
               </p>
 
@@ -515,7 +417,7 @@ export default function KnowledgePulseHome() {
                   ],
                   [
                     "Recurring issues",
-                    "Identify problems that keep appearing because they haven't been resolved.",
+                    "Identify problems that keep appearing because they haven&apos;t been resolved.",
                   ],
                   [
                     "Confidence gaps",

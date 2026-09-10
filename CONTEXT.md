@@ -10,40 +10,48 @@ Read this before making structural changes.
 
 ## 1. Current foundation
 
-KnowledgePulse is currently an intentionally small Next.js application foundation.
+KnowledgePulse has completed **Milestone 1**: the full-stack account, authentication, service selection, and resource onboarding layer.
 
 Implemented:
 
-- Next.js with App Router
+- Next.js 16 with App Router
 - TypeScript
-- Tailwind CSS
-- `src/` application directory
-- `@/*` import alias
-- shadcn/ui
-- Base UI primitives
+- Tailwind CSS with Material Design 3 (Material You) tokens & styling
+- `src/` application directory with `@/*` import alias
+- shadcn/ui & Base UI primitives
 - React Hook Form
-- Zod validation
-- Vitest
-- Testing Library
-- Playwright
-- environment configuration
+- Zod schema validation (Zod 4)
+- MongoDB integration via Mongoose with cached connection pooling (`src/lib/db.ts`)
+- Mongoose User model with safe user projections (`src/models/user.ts`)
+- Stateless JWT authentication via `jose` (`kp_session` httpOnly cookie)
+- Password hashing & verification with `bcryptjs`
+- Server-side auth helpers (`getCurrentUser()`, `requireUser()`)
+- Server Actions (`src/actions/auth.ts`, `src/actions/user.ts`)
+- API Route Handlers (`src/app/api/auth/*`)
+- Protected route layout with server-side authentication enforcement (`src/app/(protected)/layout.tsx`)
+- Data-driven service discovery & multi-selection (`src/data/services.json`)
+- Resource onboarding (document upload metadata & web URLs)
+- User profile & account overview (`/profile`)
+- Vitest unit, component, and validation test suite
+- Playwright end-to-end user journey tests
+- Environment configuration with centralized access (`src/lib/env.ts`)
 - GitHub Actions CI
-- Docker production image
-- Next.js standalone output
+- Docker production image with Next.js standalone output
 
-Not implemented yet:
+Not implemented yet (strictly deferred to future service-specific milestones):
 
-- authentication
-- database
-- ORM
-- external API integrations
-- background jobs
-- storage
-- Redis/cache
-- production hosting provider
-- Docker Compose infrastructure
+- External AI/LLM model integrations (OpenAI, Anthropic, Gemini, etc.)
+- Vector databases (Pinecone, Chroma, pgvector, etc.)
+- Document text extraction, OCR, chunking, and embedding pipelines
+- Real-time chatbot conversational UI and streaming responses
+- Customer retention risk prediction machine learning models
+- Billing and payment processing (Stripe)
+- Background worker queues (BullMQ, Celery, etc.)
+- Cloud binary object storage (S3, GCS) for uploaded document files
+- Redis / distributed cache
+- Production hosting provider
 
-Do not invent or imply that these systems already exist.
+Do not implement or assume these AI and background systems exist until their specific milestones are scheduled.
 
 ---
 
@@ -80,21 +88,43 @@ Current structure:
 
 ```text
 src/
-├── app/                 # routes, layouts, metadata, server/client entrypoints
+├── actions/                 # Server Actions ('use server') for auth and user mutations
+│   ├── auth.ts              # registerUser, loginUser, logoutUser
+│   └── user.ts              # saveSelectedServices, addResourceUrlAction, addDocumentMetadataAction
+├── app/                     # Next.js App Router routes and layouts
+│   ├── (auth)/              # Unauthenticated routes (/login, /register, /signup)
+│   ├── (protected)/         # Protected routes (/services, /onboarding/resources, /profile)
+│   │   └── layout.tsx       # Enforces authentication with requireUser()
+│   ├── api/auth/            # JSON API route handlers (/login, /register, /logout, /me)
+│   ├── layout.tsx           # Root layout with Roboto font & metadata
+│   └── page.tsx             # Public landing page with MD3 hero & service overview
 ├── components/
-│   └── ui/              # shadcn-generated primitives
-└── lib/
-    ├── env.ts           # centralized environment access
-    └── validations/     # Zod schemas
+│   ├── auth/                # Auth form components
+│   ├── layout/              # Navigation (Navbar, AuthNav)
+│   ├── profile/             # ProfileCard, UserAvatar
+│   ├── resources/           # DocumentUploadSection, ResourceUrlSection, ResourceOnboardingView
+│   ├── services/            # ServiceCard, ServiceGrid, ServiceFeatureList, ServiceSelector
+│   └── ui/                  # shadcn & Base UI primitives (button, field, input, etc.)
+├── data/
+│   └── services.json        # Canonical catalog of the 4 core services
+├── lib/
+│   ├── auth.ts              # Centralized auth guards (getCurrentUser, requireUser, sessions)
+│   ├── db.ts                # Mongoose connection caching utility
+│   ├── env.ts               # Centralized environment access
+│   ├── password.ts          # bcrypt hashing and comparison
+│   ├── session.ts           # jose JWT token signing and verification
+│   └── validations/         # Zod schemas (auth, services, resources)
+└── models/
+    └── user.ts              # Mongoose User model with toSafeUser() projection
 ```
 
 Tests:
 
 ```text
 tests/
-├── setup.ts
-├── unit/
-└── e2e/
+├── setup.ts                 # Testing environment setup and WebCrypto polyfills
+├── unit/                    # Vitest unit/validation/component tests
+└── e2e/                     # Playwright end-to-end browser user journeys
 ```
 
 Configuration:
@@ -220,11 +250,12 @@ Secrets must not use `NEXT_PUBLIC_`.
 Examples:
 
 ```text
-DATABASE_URL
+MONGODB_URI
 AUTH_SECRET
-API_KEY
-PRIVATE_TOKEN
 ```
+
+- `MONGODB_URI`: Connection URI for the MongoDB cluster or local instance (e.g., `mongodb://127.0.0.1:27017/knowledge-pulse`).
+- `AUTH_SECRET`: Symmetric secret (minimum 32 characters) used to sign and verify stateless session JWTs via `jose` (`HS256`).
 
 Do not access secrets from client components.
 
@@ -233,8 +264,6 @@ Environment access is centralized through:
 ```text
 src/lib/env.ts
 ```
-
-As real secrets are introduced, strengthen this module with explicit schema validation rather than allowing undefined or malformed runtime configuration to spread through the application.
 
 ---
 
@@ -519,23 +548,24 @@ Avoid designing the entire future architecture before the current requirement ju
 
 ## 14. Known cleanup / next architectural work
 
-The foundation is functional, but a few improvements are intentionally left for later:
+Milestone 1 (Application/Account/Onboarding layer) is complete. The next architectural phases are:
 
-### Production E2E in CI
+### Milestone 2: Service-Specific Modules & Knowledge Ingestion
+- Document ingestion pipeline: Text extraction, PDF processing, and web content crawling for connected resources.
+- Storage integration: S3/GCS or local blob storage for physical document files.
 
-Change Playwright CI execution from the development server to a production build/start sequence.
+### Milestone 3: AI Engine & RAG Foundation
+- Embedding generation and vector database indexing (pgvector, Chroma, or Pinecone).
+- Knowledge retrieval and semantic search engine.
+- AI Chatbot conversational interface with streaming responses.
 
-### Strong environment validation
+### Milestone 4: Retention Prediction & Insights Engine
+- Machine learning / heuristic engine for analyzing documentation gaps and mismatch detection.
+- Customer retention risk scoring and actionable suggestions dashboard.
 
-As real environment variables appear, use a strict server-side schema so invalid configuration fails early.
-
-### Feature/domain organization
-
-As the number of features grows, introduce domain-oriented directories instead of allowing generic folders to become oversized.
-
-### Deployment
-
-Choose a production hosting/deployment model only when there is a concrete deployment target. Adapt Docker and CI to that target instead of prematurely optimizing for an unspecified platform.
+### Operational Improvements
+- Change Playwright CI execution from the development server to a production build/start sequence once hosting/pipeline targets are finalized.
+- As additional external secrets (e.g., OpenAI API key, storage credentials) are added, expand strict schema validation in `src/lib/env.ts`.
 
 ---
 

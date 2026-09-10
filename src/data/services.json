@@ -1,0 +1,54 @@
+[
+  {
+    "id": "docs-mismatch",
+    "name": "Documentation Mismatch Detection",
+    "shortName": "Doc Mismatch",
+    "description": "Identify inconsistencies, outdated content, and knowledge gaps between your documentation and real user queries.",
+    "features": [
+      "Automated documentation audit",
+      "Discrepancy alerts & gap analysis",
+      "Content freshness tracking"
+    ],
+    "icon": "FileText",
+    "status": "available"
+  },
+  {
+    "id": "chatbot",
+    "name": "AI Chatbot Integration",
+    "shortName": "AI Chatbot",
+    "description": "Deploy an intelligent conversational assistant trained on your knowledge base for rapid 24/7 customer support.",
+    "features": [
+      "Natural language understanding",
+      "Instant response generation",
+      "Multi-channel embedding ready"
+    ],
+    "icon": "Bot",
+    "status": "available"
+  },
+  {
+    "id": "chatbot-insights",
+    "name": "Chatbot + Insights",
+    "shortName": "Chatbot + Insights",
+    "description": "Combine the conversational chatbot with continuous conversation analytics to track user confusion, trends, and sentiment.",
+    "features": [
+      "All AI Chatbot capabilities",
+      "Conversation sentiment analytics",
+      "Topic clustering & confusion points"
+    ],
+    "icon": "BarChart3",
+    "status": "available"
+  },
+  {
+    "id": "chatbot-insights-suggestions",
+    "name": "Chatbot + Insights + Suggestions",
+    "shortName": "Full Intelligence",
+    "description": "The complete platform: intelligent chatbot, analytics, and automated documentation improvement recommendations.",
+    "features": [
+      "All Chatbot + Insights capabilities",
+      "Automated rewrite recommendations",
+      "Proactive knowledge-gap resolutions"
+    ],
+    "icon": "Lightbulb",
+    "status": "available"
+  }
+]

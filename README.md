@@ -37,17 +37,20 @@ The project is intentionally kept small at the foundation level. The goal is to 
 
 ## Stack
 
-- **Next.js** — App Router + TypeScript
-- **Tailwind CSS** — styling
+- **Next.js 16** — App Router + TypeScript
+- **MongoDB + Mongoose** — database persistence with connection caching
+- **jose** — stateless JWT token signing and verification for session cookies
+- **bcryptjs** — secure password hashing
+- **Tailwind CSS** — styling adhering to Material Design 3 (Material You)
 - **shadcn/ui** — UI components, using the current Field-based form approach
-- **Base UI** — component primitives
-- **React Hook Form** — form state
-- **Zod** — schema validation and inferred types
-- **Vitest + Testing Library** — unit/component tests
-- **Playwright** — end-to-end browser tests
-- **GitHub Actions** — CI on push and pull request
-- **Docker** — production container
-- **pnpm** — package manager
+- **Base UI** — accessible component primitives
+- **React Hook Form** — client form state management
+- **Zod 4** — schema validation and inferred types
+- **Vitest + Testing Library** — unit and component testing
+- **Playwright** — end-to-end browser user journey tests
+- **GitHub Actions** — continuous integration pipeline
+- **Docker** — multi-stage production container with standalone output
+- **pnpm** — fast, reproducible package manager
 
 ## Project structure
 
@@ -58,16 +61,38 @@ knowledge-pulse/
 │       └── ci.yml
 ├── public/
 ├── src/
-│   ├── app/                    # Next.js routes and layouts
+│   ├── actions/                # Server Actions ('use server') for auth & user mutations
+│   │   ├── auth.ts             # registerUser, loginUser, logoutUser
+│   │   └── user.ts             # saveSelectedServices, addResourceUrlAction, addDocumentMetadataAction
+│   ├── app/                    # Next.js App Router routes and layouts
+│   │   ├── (auth)/             # Unauthenticated routes (/login, /register, /signup)
+│   │   ├── (protected)/        # Protected routes (/services, /onboarding/resources, /profile)
+│   │   │   └── layout.tsx      # Enforces authentication with requireUser()
+│   │   ├── api/auth/           # JSON API route handlers (/login, /register, /logout, /me)
+│   │   ├── layout.tsx          # Root layout with Roboto font & metadata
+│   │   └── page.tsx            # Public landing page with MD3 hero & service overview
 │   ├── components/
-│   │   └── ui/                 # shadcn-generated UI primitives
-│   └── lib/
-│       ├── validations/        # Zod schemas
-│       └── env.ts              # application environment access
+│   │   ├── auth/               # Auth form components
+│   │   ├── layout/             # Navigation (Navbar, AuthNav)
+│   │   ├── profile/            # ProfileCard, UserAvatar
+│   │   ├── resources/          # DocumentUploadSection, ResourceUrlSection, ResourceOnboardingView
+│   │   ├── services/           # ServiceCard, ServiceGrid, ServiceFeatureList, ServiceSelector
+│   │   └── ui/                 # shadcn & Base UI primitives (button, field, input, etc.)
+│   ├── data/
+│   │   └── services.json       # Canonical catalog of the 4 core services
+│   ├── lib/
+│   │   ├── auth.ts             # Centralized auth guards (getCurrentUser, requireUser, sessions)
+│   │   ├── db.ts               # Mongoose connection caching utility
+│   │   ├── env.ts              # Centralized environment access
+│   │   ├── password.ts         # bcrypt hashing and comparison
+│   │   ├── session.ts          # jose JWT token signing and verification
+│   │   └── validations/        # Zod schemas (auth, services, resources)
+│   └── models/
+│       └── user.ts             # Mongoose User model with toSafeUser() projection
 ├── tests/
-│   ├── setup.ts
-│   ├── unit/                   # Vitest tests
-│   └── e2e/                    # Playwright tests
+│   ├── setup.ts                # Test setup and WebCrypto polyfills
+│   ├── unit/                   # Vitest unit/validation/component tests
+│   └── e2e/                    # Playwright end-to-end browser user journeys
 ├── .dockerignore
 ├── .env.example
 ├── .gitignore
@@ -260,6 +285,11 @@ Use:
 .env.production.local local production testing, ignored
 ```
 
+Required variables:
+
+- `MONGODB_URI`: MongoDB connection string (e.g. `mongodb://127.0.0.1:27017/knowledge-pulse`).
+- `AUTH_SECRET`: Secret key (minimum 32 chars) for signing session JWT tokens.
+
 General rule:
 
 - `NEXT_PUBLIC_*` values are allowed in browser code and must be safe to expose.
@@ -385,21 +415,21 @@ Add tools such as Docker Compose, databases, Redis, background workers, or extra
 
 A command that passes locally should ideally be reproducible in CI using the same package manager and lockfile.
 
+## Full-stack application layer
+
+The application includes a fully functional full-stack onboarding and account layer:
+
+- **MongoDB & Mongoose**: Centralized cached connection utility (`src/lib/db.ts`) with a robust Mongoose `User` model (`src/models/user.ts`) supporting normalized emails, bcrypt password hashing, selected services, document metadata, resource URLs, and subscription status.
+- **Authentication & Protected Routes**: Stateless JWT session cookie (`kp_session`) signed via `jose`, stored in secure HTTP-only cookies. Centralized server-side helpers (`getCurrentUser()`, `requireUser()`) enforce authentication across layouts (`src/app/(protected)/layout.tsx`) and Server Actions (`src/actions/auth.ts`, `src/actions/user.ts`).
+- **Data-Driven Services**: Four core services configured via `src/data/services.json` (`docs-mismatch`, `chatbot`, `chatbot-insights`, `chatbot-insights-suggestions`). Interactive multi-selection grid persisted to MongoDB with server-side ID validation.
+- **Resource Onboarding**: Document upload metadata capture and web URL resource linking (`src/app/(protected)/onboarding/resources/page.tsx`).
+- **Account Profile**: Overview page displaying account status, active services, connected knowledge sources, and sign-out action (`src/app/(protected)/profile/page.tsx`). Sensitive fields (passwords, verification codes) are never exposed.
+
 ## Current status
 
-The project currently provides the application foundation:
+The application layer and account onboarding foundation are fully implemented, verified with comprehensive Vitest unit/component tests and Playwright E2E browser tests.
 
-- Next.js + TypeScript + App Router
-- Tailwind CSS
-- shadcn/ui + Base UI
-- React Hook Form + Zod
-- Vitest + Testing Library
-- Playwright
-- environment configuration
-- GitHub Actions CI
-- production Docker image
-
-Feature-specific business logic, authentication, databases, external services, and deployment infrastructure have **not** been added yet.
+AI model execution (RAG retrieval, vector databases, LLM inference, document chunking, and retention prediction) is intentionally decoupled and reserved for future service-specific milestones.
 
 ## Before adding a new feature
 
