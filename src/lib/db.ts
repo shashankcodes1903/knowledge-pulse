@@ -32,6 +32,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
 
   if (!cached.promise) {
     const opts: mongoose.ConnectOptions = {
+      dbName: env.appName || "KnowledgePulse",
       bufferCommands: false,
       serverSelectionTimeoutMS: 5000,
     };
