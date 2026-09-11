@@ -9,6 +9,7 @@ const env = {
   authSecret:
     process.env.AUTH_SECRET ??
     "kp_super_secret_session_key_32_characters_minimum_development",
+  fastapiBaseUrl: process.env.FASTAPI_BASE_URL ?? "http://localhost:8000",
 } as const;
 
 export { env };

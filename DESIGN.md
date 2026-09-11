@@ -616,5 +616,78 @@ The following full-stack interfaces have been crafted to follow the Material Des
 ### 5. Account Profile (`/profile`)
 - **Identity Banner**: Large circular user avatar (`UserAvatar`) displaying the user's initials with high-contrast text on primary tonal surface.
 - **Status Badges**: Secondary container pill chips indicating account verification (`Verified`) and subscription status (`Free`).
-- **Overview Grid**: Segmented cards detailing active selected services (with direct links back to configuration) and connected knowledge resources.
+- **Overview Grid**: Segmented cards detailing active selected services (with direct links back to configuration), connected knowledge resources, and a direct "Open Workspace" action button.
+
+---
+
+## KnowledgePulse Milestone 2 UI Implementations (Intelligence Workspace)
+
+The Milestone 2 workspace delivers an authenticated, secondary-navigated intelligence hub integrating directly with backend data contracts:
+
+### 1. Secondary Feature Navigation (`FeatureSubNav`)
+- **Container**: Sticky sub-header (`top-16 z-40 bg-[#FFFBFE]/85 backdrop-blur-sm border-b border-[#79747E]/20`).
+- **Navigation Items**:
+  - `This period` (`/overview`) — `LayoutDashboard`
+  - `Insights` (`/insights`) — `Sparkles`
+  - `Report` (`/report`) — `FileText`
+  - `Ask` (`/ask`) — `MessageSquare`
+  - `Sources` (`/sources`) — `Layers`
+  - `Evaluation` (`/evaluation`) — `CheckCircle2`
+- **Pill States**:
+  - Inactive: Ghost pill (`text-[#49454F] hover:bg-[#F3EDF7] hover:text-[#1C1B1F] rounded-full px-4 py-2`).
+  - Active: Pill highlighted in secondary container (`bg-[#E8DEF8] text-[#1D192B] font-medium shadow-xs rounded-full px-4 py-2`).
+- **Mobile Responsiveness**: Horizontal overflow-x scrolling with hidden scrollbar classes, preserving complete touch scannability on small screens.
+
+### 2. Data Visualizations & Recharts Styling
+- **Tonal Color Integration**:
+  - Primary Metric Line & Area Fill: Seed Purple (`#6750A4`) with vertical gradient opacity (`stopOpacity={0.25}` fading to `0.01`).
+  - Secondary Trend Line: Complementary Mauve (`#7D5260`).
+  - Axis & Grid Lines: Neutral Outline with reduced opacity (`#79747E`, `opacity={0.2}`).
+- **Custom Tooltip Styling**:
+  - High-elevation card: `bg-[#F3EDF7] border border-[#79747E]/20 rounded-xl shadow-lg p-3 text-xs text-[#1C1B1F]`.
+  - Accessible typography with medium font weights for values and muted variants for labels.
+- **Responsiveness**: Wrapped in `<ResponsiveContainer width="100%" height={280}>` to ensure fluid resizing on all viewports without layout distortion.
+
+### 3. Conversational Assistant & Source Evidence (`/ask`)
+- **Message Bubbles**:
+  - User: Primary purple pill bubble (`bg-[#6750A4] text-white rounded-3xl rounded-tr-md px-5 py-3.5`).
+  - Assistant: Surface container card (`bg-[#F3EDF7] text-[#1C1B1F] rounded-3xl rounded-tl-md border border-[#79747E]/15 px-5 py-3.5`).
+- **Confidence Meter**:
+  - Pill meter rendering dynamic percentage with semantic threshold coloring (Green >= 80%, Amber 60-79%, Rose < 60%).
+- **Collapsible Citations**:
+  - Accordion trigger displaying source count (`N Sources Cited`).
+  - Expandable cards revealing snippet index, source title, URL, and full citation text excerpt.
+- **Input Composer**:
+  - Rounded-full pill input container with integrated send button and tactile feedback.
+
+### 4. High-Impact Insights & Drill-Downs (`/insights`)
+- **Signal Cards**:
+  - Elevated card containers (`rounded-3xl bg-[#F3EDF7] p-6 border border-[#79747E]/15 hover:shadow-md transition-all`).
+  - Severity Badges: High (`bg-rose-100 text-rose-800`), Medium (`bg-amber-100 text-amber-800`), Low (`bg-slate-100 text-slate-800`).
+  - Trend Indicators: Up (`TrendingUp`), Down (`TrendingDown`), Neutral (`Minus`).
+- **Detail View (`/insights/[insightId]`)**:
+  - Top back-navigation breadcrumb button.
+  - Multi-column layout: Historical trajectory Recharts line chart, linked evidence sources, and actual member queries that triggered the insight.
+
+### 5. Executive Reports & Strategic Briefings (`/report`)
+- **Executive Summary Box**: Surface-accented banner highlighting core findings and date intervals.
+- **Prioritized Recommendations**:
+  - Numbered cards with high, medium, and low impact pill badges.
+  - Actionable guidance text paired with expected ROI/impact metrics.
+- **Report Archives**: Historical briefing list with download/view metadata.
+
+### 6. Source Registry & Quality Evaluation (`/sources`, `/evaluation`)
+- **Source Inventory**:
+  - Unified grid supporting both website URLs and document uploads.
+  - Status Indicators: `indexed` (emerald), `processing`/`pending` (amber), `failed` (rose).
+  - Actions: Interactive re-index button and delete trigger with confirmation prompt.
+- **Evaluation Dashboard**:
+  - Four key quality scorecards: Faithfulness, Relevancy, Latency (ms), and Cost per Query ($).
+  - Failure trace log: Detailed audit list of retrieval or generation edge cases.
+
+### 7. Layout Stability, Skeletons & Resilience
+- **Zero-CLS Skeletons**: Each workspace view (`overview`, `insights`, `report`, `ask`, `sources`, `evaluation`) provides dedicated `loading.tsx` skeletons mirroring exact card and chart dimensions.
+- **Backend Status Sentinel**: Non-intrusive banner indicating backend connectivity status (`http://localhost:8000`), giving clear guidance when the FastAPI server is starting or unreachable without breaking client-side navigation.
+- **Error State Recovery**: Graceful `ErrorState` components rendering server-provided `detail` error strings with manual retry triggers.
+
 

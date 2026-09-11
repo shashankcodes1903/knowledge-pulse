@@ -1,0 +1,1207 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "KnowledgePulse",
+    "description": "A support assistant that answers from an organisation's own documents, and an analytics layer that reads the resulting conversations and reports what customers are stuck on.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/sources": {
+      "get": {
+        "tags": [
+          "sources"
+        ],
+        "summary": "List Sources",
+        "operationId": "list_sources_api_sources_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SourceOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Sources Api Sources Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "sources"
+        ],
+        "summary": "Create Source",
+        "operationId": "create_source_api_sources_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sources/upload": {
+      "post": {
+        "tags": [
+          "sources"
+        ],
+        "summary": "Upload Source",
+        "operationId": "upload_source_api_sources_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_source_api_sources_upload_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sources/{source_id}/reindex": {
+      "post": {
+        "tags": [
+          "sources"
+        ],
+        "summary": "Reindex",
+        "operationId": "reindex_api_sources__source_id__reindex_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sources/{source_id}": {
+      "delete": {
+        "tags": [
+          "sources"
+        ],
+        "summary": "Delete Source",
+        "operationId": "delete_source_api_sources__source_id__delete",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chat": {
+      "post": {
+        "tags": [
+          "chat"
+        ],
+        "summary": "Chat",
+        "operationId": "chat_api_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/overview": {
+      "get": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "Overview",
+        "operationId": "overview_api_overview_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverviewOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/insights": {
+      "get": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "List Insights",
+        "operationId": "list_insights_api_insights_get",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Period"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InsightOut"
+                  },
+                  "title": "Response List Insights Api Insights Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/insights/{insight_id}": {
+      "get": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "Get Insight",
+        "operationId": "get_insight_api_insights__insight_id__get",
+        "parameters": [
+          {
+            "name": "insight_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Insight Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsightDetailOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/latest": {
+      "get": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "Latest Report",
+        "operationId": "latest_report_api_reports_latest_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports": {
+      "get": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "List Reports",
+        "operationId": "list_reports_api_reports_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ReportOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Reports Api Reports Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/run": {
+      "post": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "Trigger Batch",
+        "description": "Kick off the analytics batch. Returns immediately; it takes minutes.",
+        "operationId": "trigger_batch_api_analytics_run_post",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Period"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/evaluation/latest": {
+      "get": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "Latest Evaluation",
+        "operationId": "latest_evaluation_api_evaluation_latest_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_upload_source_api_sources_upload_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_source_api_sources_upload_post"
+      },
+      "ChatRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question",
+          "session_id"
+        ],
+        "title": "ChatRequest"
+      },
+      "CitationOut": {
+        "properties": {
+          "chunkId": {
+            "type": "string",
+            "title": "Chunkid"
+          },
+          "sourceLabel": {
+            "type": "string",
+            "title": "Sourcelabel"
+          },
+          "headingPath": {
+            "type": "string",
+            "title": "Headingpath"
+          },
+          "similarity": {
+            "type": "number",
+            "title": "Similarity"
+          },
+          "excerpt": {
+            "type": "string",
+            "title": "Excerpt"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chunkId",
+          "sourceLabel",
+          "headingPath",
+          "similarity",
+          "excerpt"
+        ],
+        "title": "CitationOut"
+      },
+      "EvaluationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "ranAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ranat"
+          },
+          "questionCount": {
+            "type": "integer",
+            "title": "Questioncount"
+          },
+          "faithfulness": {
+            "type": "number",
+            "title": "Faithfulness"
+          },
+          "answerRelevance": {
+            "type": "number",
+            "title": "Answerrelevance"
+          },
+          "contextRelevance": {
+            "type": "number",
+            "title": "Contextrelevance"
+          },
+          "failures": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Failures"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ranAt",
+          "questionCount",
+          "faithfulness",
+          "answerRelevance",
+          "contextRelevance",
+          "failures"
+        ],
+        "title": "EvaluationOut"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InsightDetailOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Keywords"
+          },
+          "queryCount": {
+            "type": "integer",
+            "title": "Querycount"
+          },
+          "previousQueryCount": {
+            "type": "integer",
+            "title": "Previousquerycount"
+          },
+          "growth": {
+            "type": "number",
+            "title": "Growth"
+          },
+          "meanConfidence": {
+            "type": "number",
+            "title": "Meanconfidence"
+          },
+          "severity": {
+            "type": "number",
+            "title": "Severity"
+          },
+          "priority": {
+            "type": "number",
+            "title": "Priority"
+          },
+          "trend": {
+            "type": "string",
+            "title": "Trend"
+          },
+          "sampleQueries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Samplequeries"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/TrendPointOut"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "memberQueries": {
+            "items": {
+              "$ref": "#/components/schemas/MemberQueryOut"
+            },
+            "type": "array",
+            "title": "Memberqueries"
+          },
+          "weakestChunks": {
+            "items": {
+              "$ref": "#/components/schemas/CitationOut"
+            },
+            "type": "array",
+            "title": "Weakestchunks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "rank",
+          "name",
+          "keywords",
+          "queryCount",
+          "previousQueryCount",
+          "growth",
+          "meanConfidence",
+          "severity",
+          "priority",
+          "trend",
+          "sampleQueries",
+          "history",
+          "memberQueries",
+          "weakestChunks"
+        ],
+        "title": "InsightDetailOut"
+      },
+      "InsightOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Keywords"
+          },
+          "queryCount": {
+            "type": "integer",
+            "title": "Querycount"
+          },
+          "previousQueryCount": {
+            "type": "integer",
+            "title": "Previousquerycount"
+          },
+          "growth": {
+            "type": "number",
+            "title": "Growth"
+          },
+          "meanConfidence": {
+            "type": "number",
+            "title": "Meanconfidence"
+          },
+          "severity": {
+            "type": "number",
+            "title": "Severity"
+          },
+          "priority": {
+            "type": "number",
+            "title": "Priority"
+          },
+          "trend": {
+            "type": "string",
+            "title": "Trend"
+          },
+          "sampleQueries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Samplequeries"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "rank",
+          "name",
+          "keywords",
+          "queryCount",
+          "previousQueryCount",
+          "growth",
+          "meanConfidence",
+          "severity",
+          "priority",
+          "trend",
+          "sampleQueries"
+        ],
+        "title": "InsightOut"
+      },
+      "MemberQueryOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "askedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Askedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "text",
+          "confidence",
+          "askedAt"
+        ],
+        "title": "MemberQueryOut"
+      },
+      "MessageOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createdat"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/CitationOut"
+            },
+            "type": "array",
+            "title": "Citations",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "text",
+          "createdAt"
+        ],
+        "title": "MessageOut"
+      },
+      "OverviewOut": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "conversationCount": {
+            "type": "integer",
+            "title": "Conversationcount"
+          },
+          "queryCount": {
+            "type": "integer",
+            "title": "Querycount"
+          },
+          "topicCount": {
+            "type": "integer",
+            "title": "Topiccount"
+          },
+          "unansweredRate": {
+            "type": "number",
+            "title": "Unansweredrate"
+          },
+          "meanConfidence": {
+            "type": "number",
+            "title": "Meanconfidence"
+          },
+          "emergingCount": {
+            "type": "integer",
+            "title": "Emergingcount"
+          },
+          "volumeByPeriod": {
+            "items": {
+              "$ref": "#/components/schemas/TrendPointOut"
+            },
+            "type": "array",
+            "title": "Volumebyperiod"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "conversationCount",
+          "queryCount",
+          "topicCount",
+          "unansweredRate",
+          "meanConfidence",
+          "emergingCount",
+          "volumeByPeriod"
+        ],
+        "title": "OverviewOut"
+      },
+      "RecommendationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "headline": {
+            "type": "string",
+            "title": "Headline"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "insightId": {
+            "type": "string",
+            "title": "Insightid"
+          },
+          "insightName": {
+            "type": "string",
+            "title": "Insightname"
+          },
+          "supportingQueries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supportingqueries"
+          },
+          "volume": {
+            "type": "integer",
+            "title": "Volume"
+          },
+          "growth": {
+            "type": "number",
+            "title": "Growth"
+          },
+          "expectedEffect": {
+            "type": "string",
+            "title": "Expectedeffect"
+          },
+          "faqAnswer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faqanswer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "headline",
+          "body",
+          "insightId",
+          "insightName",
+          "supportingQueries",
+          "volume",
+          "growth",
+          "expectedEffect"
+        ],
+        "title": "RecommendationOut"
+      },
+      "ReportOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generatedat"
+          },
+          "conversationCount": {
+            "type": "integer",
+            "title": "Conversationcount"
+          },
+          "queryCount": {
+            "type": "integer",
+            "title": "Querycount"
+          },
+          "unansweredRate": {
+            "type": "number",
+            "title": "Unansweredrate"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationOut"
+            },
+            "type": "array",
+            "title": "Recommendations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "period",
+          "generatedAt",
+          "conversationCount",
+          "queryCount",
+          "unansweredRate",
+          "summary",
+          "recommendations"
+        ],
+        "title": "ReportOut"
+      },
+      "SourceCreate": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "website",
+              "pdf",
+              "docx",
+              "text"
+            ],
+            "title": "Kind",
+            "default": "website"
+          },
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "location"
+        ],
+        "title": "SourceCreate"
+      },
+      "SourceOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "pageCount": {
+            "type": "integer",
+            "title": "Pagecount"
+          },
+          "chunkCount": {
+            "type": "integer",
+            "title": "Chunkcount"
+          },
+          "lastIndexedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastindexedat"
+          },
+          "contentHash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contenthash"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "label",
+          "location",
+          "status",
+          "pageCount",
+          "chunkCount",
+          "lastIndexedAt",
+          "contentHash"
+        ],
+        "title": "SourceOut"
+      },
+      "TrendPointOut": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "queries": {
+            "type": "integer",
+            "title": "Queries"
+          },
+          "meanConfidence": {
+            "type": "number",
+            "title": "Meanconfidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "queries",
+          "meanConfidence"
+        ],
+        "title": "TrendPointOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

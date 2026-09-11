@@ -28,6 +28,24 @@ export default async function ResourcesOnboardingPage() {
         </p>
       </div>
 
+      {/* Workspace Sources Notice */}
+      <div className="mb-8 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/60">
+        <div>
+          <p className="text-xs font-semibold text-slate-900 dark:text-white">
+            Looking for live knowledge indexing and backend sources?
+          </p>
+          <p className="text-xs text-slate-500">
+            Manage active knowledge sources directly in the application workspace.
+          </p>
+        </div>
+        <a
+          href="/sources"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-white shadow-xs transition hover:bg-[#6750A4] dark:bg-white dark:text-slate-900"
+        >
+          Live Sources →
+        </a>
+      </div>
+
       {/* Onboarding View */}
       <ResourceOnboardingView
         initialDocuments={user.documents ?? []}

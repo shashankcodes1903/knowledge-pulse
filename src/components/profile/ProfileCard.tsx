@@ -95,6 +95,14 @@ export function ProfileCard({ user }: ProfileCardProps) {
           </div>
 
           <div className="flex items-center gap-3 self-end sm:self-center">
+            <Link
+              href="/overview"
+              className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-xs transition hover:bg-[#6750A4] active:scale-95 dark:bg-white dark:text-slate-950"
+            >
+              <Sparkles className="h-4 w-4" />
+              Open Workspace
+            </Link>
+
             <Button
               type="button"
               onClick={handleLogout}

@@ -69,6 +69,21 @@ export function Navbar({ user: initialUser }: NavbarProps) {
         {user ? (
           <nav className="hidden items-center gap-6 md:flex">
             <Link
+              href="/overview"
+              className={`text-sm font-medium transition hover:text-md-primary ${
+                pathname.startsWith("/overview") ||
+                pathname.startsWith("/insights") ||
+                pathname.startsWith("/report") ||
+                pathname.startsWith("/ask") ||
+                pathname.startsWith("/sources") ||
+                pathname.startsWith("/evaluation")
+                  ? "text-md-primary font-semibold"
+                  : "text-slate-600 dark:text-slate-300"
+              }`}
+            >
+              Workspace
+            </Link>
+            <Link
               href="/services"
               className={`text-sm font-medium transition hover:text-md-primary ${
                 pathname === "/services"
@@ -200,6 +215,13 @@ export function Navbar({ user: initialUser }: NavbarProps) {
               </div>
 
               <nav className="flex flex-col gap-1">
+                <Link
+                  href="/overview"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-zinc-900"
+                >
+                  Workspace
+                </Link>
                 <Link
                   href="/services"
                   onClick={() => setMobileOpen(false)}

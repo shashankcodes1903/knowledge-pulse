@@ -10,48 +10,52 @@ Read this before making structural changes.
 
 ## 1. Current foundation
 
-KnowledgePulse has completed **Milestone 1**: the full-stack account, authentication, service selection, and resource onboarding layer.
+KnowledgePulse has completed:
+- **Milestone 1**: Full-stack account, authentication, service selection, and resource onboarding layer.
+- **Milestone 2**: Authenticated Intelligence Workspace & FastAPI Backend Integration.
 
 Implemented:
 
-- Next.js 16 with App Router
-- TypeScript
+- Next.js 16 with App Router + TypeScript
 - Tailwind CSS with Material Design 3 (Material You) tokens & styling
 - `src/` application directory with `@/*` import alias
 - shadcn/ui & Base UI primitives
-- React Hook Form
-- Zod schema validation (Zod 4)
+- React Hook Form + Zod schema validation (Zod 4)
 - MongoDB integration via Mongoose with cached connection pooling (`src/lib/db.ts`)
 - Mongoose User model with safe user projections (`src/models/user.ts`)
 - Stateless JWT authentication via `jose` (`kp_session` httpOnly cookie)
 - Password hashing & verification with `bcryptjs`
 - Server-side auth helpers (`getCurrentUser()`, `requireUser()`)
-- Server Actions (`src/actions/auth.ts`, `src/actions/user.ts`)
+- Server Actions (`src/actions/auth.ts`, `src/actions/user.ts`, `src/actions/intelligence.ts`)
 - API Route Handlers (`src/app/api/auth/*`)
 - Protected route layout with server-side authentication enforcement (`src/app/(protected)/layout.tsx`)
-- Data-driven service discovery & multi-selection (`src/data/services.json`)
-- Resource onboarding (document upload metadata & web URLs)
-- User profile & account overview (`/profile`)
-- Vitest unit, component, and validation test suite
-- Playwright end-to-end user journey tests
+- Nested workspace layout with secondary feature navigation (`src/app/(protected)/(workspace)/layout.tsx`)
+- Secondary feature navigation (`src/components/layout/FeatureSubNav.tsx`, `src/data/feature-navigation.json`)
+- **FastAPI Integration Layer** (`src/lib/fastapi/`):
+  - Type-safe client matching `openapi.json` source of truth
+  - Automatic identity header injection (`X-User-Id: <user._id>`, `X-User-Email: <user.email>`)
+  - Server-only execution (`FASTAPI_BASE_URL` in `src/lib/env.ts`, never `NEXT_PUBLIC_*`)
+  - Safe error extraction surfacing backend `detail` messages
+  - Modular domain helpers: `sources`, `chat`, `overview`, `insights`, `reports`, `analytics`, `evaluation`, `health`
+- **6 Core Workspace Feature Surfaces**:
+  - **This period** (`/overview`): System overview metrics, activity trends, confidence distribution, analytics batch execution
+  - **Insights** (`/insights`, `/insights/[insightId]`): Signal lists, severity/trend indicators, historical chart, evidence links, member queries
+  - **Report** (`/report`): Executive briefings, strategic recommendations, report archive
+  - **Ask** (`/ask`): Conversational assistant, lazy browser session management, collapsible citations, confidence scoring
+  - **Sources** (`/sources`): Website and document source registry, index status badges, reindexing, and deletion
+  - **Evaluation** (`/evaluation`): Quality metrics (faithfulness, relevancy, latency, cost), failure trace logs
+- Recharts visualizations styled with Material You tonal color palettes (`#6750A4`, `#7D5260`, `#49454F`)
+- Resilient UI error boundaries, independent loading skeletons, and graceful offline backend status displays
+- Vitest unit, component, and action test suite (10 suites, 47 tests)
+- Playwright end-to-end browser user journey tests (11 tests covering auth flows and workspace route guards)
 - Environment configuration with centralized access (`src/lib/env.ts`)
-- GitHub Actions CI
-- Docker production image with Next.js standalone output
+- GitHub Actions CI & Docker multi-stage container
 
-Not implemented yet (strictly deferred to future service-specific milestones):
-
-- External AI/LLM model integrations (OpenAI, Anthropic, Gemini, etc.)
-- Vector databases (Pinecone, Chroma, pgvector, etc.)
-- Document text extraction, OCR, chunking, and embedding pipelines
-- Real-time chatbot conversational UI and streaming responses
-- Customer retention risk prediction machine learning models
-- Billing and payment processing (Stripe)
-- Background worker queues (BullMQ, Celery, etc.)
-- Cloud binary object storage (S3, GCS) for uploaded document files
-- Redis / distributed cache
-- Production hosting provider
-
-Do not implement or assume these AI and background systems exist until their specific milestones are scheduled.
+Architecture Boundary & Responsibilities:
+- Next.js is strictly the presentation and product delivery layer.
+- Next.js does NOT implement AI/LLM models, embeddings, RAG pipelines, or analytics computation.
+- All intelligence operations are delegated to the existing FastAPI backend via the authenticated server-side client.
+- No mocks, placeholders, or fake analytics data are used in the application.
 
 ---
 
@@ -88,32 +92,65 @@ Current structure:
 
 ```text
 src/
-├── actions/                 # Server Actions ('use server') for auth and user mutations
+├── actions/                 # Server Actions ('use server') for auth, user, and intelligence mutations
 │   ├── auth.ts              # registerUser, loginUser, logoutUser
+│   ├── intelligence.ts      # sendChatMessage, createWebsiteSourceAction, uploadDocumentSourceAction, reindex, delete, triggerBatch
 │   └── user.ts              # saveSelectedServices, addResourceUrlAction, addDocumentMetadataAction
 ├── app/                     # Next.js App Router routes and layouts
 │   ├── (auth)/              # Unauthenticated routes (/login, /register, /signup)
-│   ├── (protected)/         # Protected routes (/services, /onboarding/resources, /profile)
+│   ├── (protected)/         # Protected routes layout enforcing authentication
+│   │   ├── (workspace)/     # Nested workspace shell with secondary feature navigation
+│   │   │   ├── ask/         # Conversational assistant (/ask)
+│   │   │   ├── evaluation/  # System quality & failure evaluation (/evaluation)
+│   │   │   ├── insights/    # High-impact signals & details (/insights, /insights/[insightId])
+│   │   │   ├── overview/    # System overview & activity metrics (/overview)
+│   │   │   ├── report/      # Briefing summaries & recommendations (/report)
+│   │   │   ├── sources/     # Unified source registry & indexing (/sources)
+│   │   │   └── layout.tsx   # FeatureSubNav navigation layout
+│   │   ├── onboarding/      # Service selection & resource setup (/onboarding/resources)
+│   │   ├── profile/         # User account settings & profile overview (/profile)
+│   │   ├── services/        # Service discovery & multi-selection (/services)
 │   │   └── layout.tsx       # Enforces authentication with requireUser()
 │   ├── api/auth/            # JSON API route handlers (/login, /register, /logout, /me)
 │   ├── layout.tsx           # Root layout with Roboto font & metadata
 │   └── page.tsx             # Public landing page with MD3 hero & service overview
 ├── components/
-│   ├── auth/                # Auth form components
-│   ├── layout/              # Navigation (Navbar, AuthNav)
+│   ├── auth/                # Auth form components (LoginForm, RegisterForm)
+│   ├── chat/                # Conversational components (ChatWindow, MessageBubble, CitationList, ConfidenceMeter)
+│   ├── evaluation/          # Quality metric cards & failure inspection lists
+│   ├── insights/            # Insight cards, historical Recharts, evidence links, query lists
+│   ├── layout/              # Navigation (Navbar, AuthNav, FeatureSubNav)
+│   ├── overview/            # Metric grids, Recharts activity & confidence charts, batch trigger
 │   ├── profile/             # ProfileCard, UserAvatar
+│   ├── reports/             # Executive briefing cards, recommendations, report archives
 │   ├── resources/           # DocumentUploadSection, ResourceUrlSection, ResourceOnboardingView
 │   ├── services/            # ServiceCard, ServiceGrid, ServiceFeatureList, ServiceSelector
+│   ├── shared/              # PageHeader, EmptyState, ErrorState, BackendStatus, SkeletonPrimitives
 │   └── ui/                  # shadcn & Base UI primitives (button, field, input, etc.)
 ├── data/
+│   ├── feature-navigation.json # Canonical configuration for the 6 workspace navigation items
 │   └── services.json        # Canonical catalog of the 4 core services
 ├── lib/
 │   ├── auth.ts              # Centralized auth guards (getCurrentUser, requireUser, sessions)
 │   ├── db.ts                # Mongoose connection caching utility
-│   ├── env.ts               # Centralized environment access
+│   ├── env.ts               # Centralized environment access (MONGODB_URI, AUTH_SECRET, FASTAPI_BASE_URL)
+│   ├── fastapi/             # Server-side FastAPI client layer
+│   │   ├── analytics.ts     # Batch trigger client
+│   │   ├── chat.ts          # Conversation message dispatch
+│   │   ├── client.ts        # Core fetcher injecting X-User-Id & X-User-Email
+│   │   ├── errors.ts        # ApiError & error detail normalizers
+│   │   ├── evaluation.ts    # Evaluation quality & failure fetching
+│   │   ├── health.ts        # FastAPI backend ping & status check
+│   │   ├── index.ts         # Centralized export barrel
+│   │   ├── insights.ts      # Insight list & detail client
+│   │   ├── overview.ts      # Metrics & chart data client
+│   │   ├── reports.ts       # Executive reports & recommendations client
+│   │   ├── sources.ts       # Website & document source management
+│   │   └── types.ts         # TypeScript contracts matching openapi.json
+│   ├── formatters.ts        # Value formatting (percentages, confidence, relative time, currency)
 │   ├── password.ts          # bcrypt hashing and comparison
 │   ├── session.ts           # jose JWT token signing and verification
-│   └── validations/         # Zod schemas (auth, services, resources)
+│   └── validations/         # Zod schemas (auth, services, resources, intelligence)
 └── models/
     └── user.ts              # Mongoose User model with toSafeUser() projection
 ```
@@ -252,12 +289,14 @@ Examples:
 ```text
 MONGODB_URI
 AUTH_SECRET
+FASTAPI_BASE_URL
 ```
 
 - `MONGODB_URI`: Connection URI for the MongoDB cluster or local instance (e.g., `mongodb://127.0.0.1:27017/knowledge-pulse`).
 - `AUTH_SECRET`: Symmetric secret (minimum 32 characters) used to sign and verify stateless session JWTs via `jose` (`HS256`).
+- `FASTAPI_BASE_URL`: Base URL for the backend FastAPI intelligence service (e.g., `http://localhost:8000`). Never exposed via `NEXT_PUBLIC_*`.
 
-Do not access secrets from client components.
+Do not access secrets or backend service URLs from client components. Always route through Next.js Server Components, Route Handlers, or Server Actions where identity headers (`X-User-Id`, `X-User-Email`) can be securely attached.
 
 Environment access is centralized through:
 
@@ -548,24 +587,28 @@ Avoid designing the entire future architecture before the current requirement ju
 
 ## 14. Known cleanup / next architectural work
 
-Milestone 1 (Application/Account/Onboarding layer) is complete. The next architectural phases are:
+Milestone 1 (Application/Account/Onboarding layer) and Milestone 2 (FastAPI Intelligence Workspace Integration) are complete.
 
-### Milestone 2: Service-Specific Modules & Knowledge Ingestion
-- Document ingestion pipeline: Text extraction, PDF processing, and web content crawling for connected resources.
-- Storage integration: S3/GCS or local blob storage for physical document files.
+Completed in Milestone 2:
+- Fully integrated server-side FastAPI client layer (`src/lib/fastapi/`) matching `openapi.json`.
+- Automatic session-to-identity header injection (`X-User-Id`, `X-User-Email`).
+- Secondary feature navigation (`FeatureSubNav`) linking all 6 workspace areas: This period (`/overview`), Insights (`/insights`), Report (`/report`), Ask (`/ask`), Sources (`/sources`), Evaluation (`/evaluation`).
+- Interactive data visualizations with Recharts styled in Material You tonal aesthetics.
+- Server Actions for conversational chat, source creation/upload/reindexing/deletion, and analytics batch triggering.
+- Graceful offline backend handling and transparent error reporting without crashing.
 
-### Milestone 3: AI Engine & RAG Foundation
-- Embedding generation and vector database indexing (pgvector, Chroma, or Pinecone).
-- Knowledge retrieval and semantic search engine.
-- AI Chatbot conversational interface with streaming responses.
+Future Architectural Phases:
+### Milestone 3: Real-Time Streaming & WebSocket Support
+- Upgrade chat interaction from request-response to SSE (Server-Sent Events) or WebSocket streaming as backend capabilities expand.
+- Real-time indexing status progress bars via background task polling or webhooks.
 
-### Milestone 4: Retention Prediction & Insights Engine
-- Machine learning / heuristic engine for analyzing documentation gaps and mismatch detection.
-- Customer retention risk scoring and actionable suggestions dashboard.
+### Milestone 4: Advanced Visualizations & Exports
+- PDF and CSV export pipelines for executive reports and analytics summaries.
+- Enhanced drill-downs for evaluation failures and metric historical comparisons.
 
 ### Operational Improvements
-- Change Playwright CI execution from the development server to a production build/start sequence once hosting/pipeline targets are finalized.
-- As additional external secrets (e.g., OpenAI API key, storage credentials) are added, expand strict schema validation in `src/lib/env.ts`.
+- Expand Playwright test suite with mocked FastAPI responses for hermetic end-to-end integration tests.
+- Transition Playwright CI runs to pre-built Next.js standalone container execution.
 
 ---
 

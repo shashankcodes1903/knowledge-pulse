@@ -39,9 +39,11 @@ The project is intentionally kept small at the foundation level. The goal is to 
 
 - **Next.js 16** — App Router + TypeScript
 - **MongoDB + Mongoose** — database persistence with connection caching
+- **FastAPI Integration Layer** — server-only client matching backend OpenAPI specifications with automatic identity headers (`X-User-Id`, `X-User-Email`)
 - **jose** — stateless JWT token signing and verification for session cookies
 - **bcryptjs** — secure password hashing
 - **Tailwind CSS** — styling adhering to Material Design 3 (Material You)
+- **Recharts** — accessible, responsive data visualizations styled with MD3 tonal surfaces
 - **shadcn/ui** — UI components, using the current Field-based form approach
 - **Base UI** — accessible component primitives
 - **React Hook Form** — client form state management
@@ -61,43 +63,77 @@ knowledge-pulse/
 │       └── ci.yml
 ├── public/
 ├── src/
-│   ├── actions/                # Server Actions ('use server') for auth & user mutations
+│   ├── actions/                # Server Actions ('use server') for auth, user & intelligence mutations
 │   │   ├── auth.ts             # registerUser, loginUser, logoutUser
+│   │   ├── intelligence.ts     # sendChatMessage, createWebsiteSourceAction, uploadDocumentSourceAction, reindex, delete, triggerBatch
 │   │   └── user.ts             # saveSelectedServices, addResourceUrlAction, addDocumentMetadataAction
 │   ├── app/                    # Next.js App Router routes and layouts
 │   │   ├── (auth)/             # Unauthenticated routes (/login, /register, /signup)
-│   │   ├── (protected)/        # Protected routes (/services, /onboarding/resources, /profile)
+│   │   ├── (protected)/        # Protected routes enforcing session authentication
+│   │   │   ├── (workspace)/    # Nested workspace shell with secondary feature navigation
+│   │   │   │   ├── ask/        # Conversational intelligence assistant (/ask)
+│   │   │   │   ├── evaluation/ # Quality evaluation & failure logs (/evaluation)
+│   │   │   │   ├── insights/   # Signal discovery & drill-downs (/insights, /insights/[insightId])
+│   │   │   │   ├── overview/   # Analytics overview & batch runs (/overview)
+│   │   │   │   ├── report/     # Executive briefings & recommendations (/report)
+│   │   │   │   ├── sources/    # Unified source registry & reindexing (/sources)
+│   │   │   │   └── layout.tsx  # Workspace FeatureSubNav layout
+│   │   │   ├── onboarding/     # Resource setup (/onboarding/resources)
+│   │   │   ├── profile/        # User account settings (/profile)
+│   │   │   ├── services/       # Service discovery & selection (/services)
 │   │   │   └── layout.tsx      # Enforces authentication with requireUser()
 │   │   ├── api/auth/           # JSON API route handlers (/login, /register, /logout, /me)
 │   │   ├── layout.tsx          # Root layout with Roboto font & metadata
 │   │   └── page.tsx            # Public landing page with MD3 hero & service overview
 │   ├── components/
-│   │   ├── auth/               # Auth form components
-│   │   ├── layout/             # Navigation (Navbar, AuthNav)
+│   │   ├── auth/               # Auth form components (LoginForm, RegisterForm)
+│   │   ├── chat/               # Conversational UI (ChatWindow, MessageBubble, CitationList, ConfidenceMeter)
+│   │   ├── evaluation/         # Quality metrics & failure inspection lists
+│   │   ├── insights/           # Signal cards, history charts, evidence sources, query lists
+│   │   ├── layout/             # Navigation (Navbar, AuthNav, FeatureSubNav)
+│   │   ├── overview/           # Metric grids, Recharts charts, batch trigger control
 │   │   ├── profile/            # ProfileCard, UserAvatar
+│   │   ├── reports/            # Executive briefings, recommendation cards, report archives
 │   │   ├── resources/          # DocumentUploadSection, ResourceUrlSection, ResourceOnboardingView
 │   │   ├── services/           # ServiceCard, ServiceGrid, ServiceFeatureList, ServiceSelector
+│   │   ├── shared/             # PageHeader, EmptyState, ErrorState, BackendStatus, SkeletonPrimitives
 │   │   └── ui/                 # shadcn & Base UI primitives (button, field, input, etc.)
 │   ├── data/
+│   │   ├── feature-navigation.json # Canonical 6 workspace navigation items
 │   │   └── services.json       # Canonical catalog of the 4 core services
 │   ├── lib/
 │   │   ├── auth.ts             # Centralized auth guards (getCurrentUser, requireUser, sessions)
 │   │   ├── db.ts               # Mongoose connection caching utility
-│   │   ├── env.ts              # Centralized environment access
+│   │   ├── env.ts              # Centralized environment access (MONGODB_URI, AUTH_SECRET, FASTAPI_BASE_URL)
+│   │   ├── fastapi/            # Server-side FastAPI client layer
+│   │   │   ├── analytics.ts    # Analytics batch trigger client
+│   │   │   ├── chat.ts         # Conversational dispatch client
+│   │   │   ├── client.ts       # Core fetcher injecting X-User-Id & X-User-Email
+│   │   │   ├── errors.ts       # ApiError & error detail normalization
+│   │   │   ├── evaluation.ts   # System evaluation client
+│   │   │   ├── health.ts       # Backend ping & status check
+│   │   │   ├── index.ts        # Barrel export
+│   │   │   ├── insights.ts     # Insight queries & details client
+│   │   │   ├── overview.ts     # System overview metrics client
+│   │   │   ├── reports.ts      # Executive report client
+│   │   │   ├── sources.ts      # Source management & indexing client
+│   │   │   └── types.ts        # TypeScript contracts matching openapi.json
+│   │   ├── formatters.ts       # Number, percentage, confidence, and date formatters
 │   │   ├── password.ts         # bcrypt hashing and comparison
 │   │   ├── session.ts          # jose JWT token signing and verification
-│   │   └── validations/        # Zod schemas (auth, services, resources)
+│   │   └── validations/        # Zod schemas (auth, services, resources, intelligence)
 │   └── models/
 │       └── user.ts             # Mongoose User model with toSafeUser() projection
 ├── tests/
 │   ├── setup.ts                # Test setup and WebCrypto polyfills
-│   ├── unit/                   # Vitest unit/validation/component tests
+│   ├── unit/                   # Vitest unit/validation/component/client tests
 │   └── e2e/                    # Playwright end-to-end browser user journeys
 ├── .dockerignore
 ├── .env.example
 ├── .gitignore
 ├── Dockerfile
 ├── next.config.ts
+├── openapi.json
 ├── package.json
 ├── playwright.config.ts
 ├── pnpm-lock.yaml
@@ -289,11 +325,12 @@ Required variables:
 
 - `MONGODB_URI`: MongoDB connection string (e.g. `mongodb://127.0.0.1:27017/knowledge-pulse`).
 - `AUTH_SECRET`: Secret key (minimum 32 chars) for signing session JWT tokens.
+- `FASTAPI_BASE_URL`: Base URL for the FastAPI intelligence backend service (e.g. `http://localhost:8000`).
 
 General rule:
 
 - `NEXT_PUBLIC_*` values are allowed in browser code and must be safe to expose.
-- Secrets such as database credentials, auth secrets, API keys, and private tokens must remain server-side.
+- Secrets and internal service URLs (such as `FASTAPI_BASE_URL`, `MONGODB_URI`, and `AUTH_SECRET`) must remain strictly server-side.
 - Never commit real credentials.
 
 The project exposes application environment values through `src/lib/env.ts` so environment access stays centralized.
@@ -415,22 +452,34 @@ Add tools such as Docker Compose, databases, Redis, background workers, or extra
 
 A command that passes locally should ideally be reproducible in CI using the same package manager and lockfile.
 
-## Full-stack application layer
+## Full-stack application layer & Intelligence Workspace
 
-The application includes a fully functional full-stack onboarding and account layer:
+The application includes a fully functional full-stack onboarding, account layer, and authenticated intelligence workspace:
 
 - **MongoDB & Mongoose**: Centralized cached connection utility (`src/lib/db.ts`) with a robust Mongoose `User` model (`src/models/user.ts`) supporting normalized emails, bcrypt password hashing, selected services, document metadata, resource URLs, and subscription status.
-- **Authentication & Protected Routes**: Stateless JWT session cookie (`kp_session`) signed via `jose`, stored in secure HTTP-only cookies. Centralized server-side helpers (`getCurrentUser()`, `requireUser()`) enforce authentication across layouts (`src/app/(protected)/layout.tsx`) and Server Actions (`src/actions/auth.ts`, `src/actions/user.ts`).
+- **Authentication & Protected Routes**: Stateless JWT session cookie (`kp_session`) signed via `jose`, stored in secure HTTP-only cookies. Centralized server-side helpers (`getCurrentUser()`, `requireUser()`) enforce authentication across layouts (`src/app/(protected)/layout.tsx`) and Server Actions (`src/actions/auth.ts`, `src/actions/user.ts`, `src/actions/intelligence.ts`).
 - **Data-Driven Services**: Four core services configured via `src/data/services.json` (`docs-mismatch`, `chatbot`, `chatbot-insights`, `chatbot-insights-suggestions`). Interactive multi-selection grid persisted to MongoDB with server-side ID validation.
 - **Resource Onboarding**: Document upload metadata capture and web URL resource linking (`src/app/(protected)/onboarding/resources/page.tsx`).
-- **Account Profile**: Overview page displaying account status, active services, connected knowledge sources, and sign-out action (`src/app/(protected)/profile/page.tsx`). Sensitive fields (passwords, verification codes) are never exposed.
+- **Account Profile**: Overview page displaying account status, active services, connected knowledge sources, direct navigation to the Workspace, and sign-out action (`src/app/(protected)/profile/page.tsx`). Sensitive fields (passwords, verification codes) are never exposed.
+- **FastAPI Client Integration Layer**: Server-only typed fetcher (`src/lib/fastapi/`) calling the FastAPI backend (`http://localhost:8000`), automatically injecting `X-User-Id` and `X-User-Email` headers derived from the authenticated session.
+- **Secondary Feature Navigation**: Dedicated horizontal sub-navigation (`FeatureSubNav.tsx`) linking the 6 workspace areas:
+  1. **This period** (`/overview`): System metrics, volume, coverage, Recharts activity and confidence distributions, and analytics batch execution (`POST /analytics/run`).
+  2. **Insights** (`/insights`, `/insights/[insightId]`): High-impact signals with severity/trend badges, historical trend Recharts, evidence sources, and member queries.
+  3. **Report** (`/report`): Executive briefings, prioritized recommendations with impact badges, and historical report archives.
+  4. **Ask** (`/ask`): Conversational RAG assistant with browser-scoped session IDs, message bubbles, collapsible source citations, and confidence meters.
+  5. **Sources** (`/sources`): Unified resource inventory for website URLs and document uploads, with indexing status badges, reindex triggers, and deletion workflows.
+  6. **Evaluation** (`/evaluation`): Quality metrics (faithfulness, relevancy, latency, cost) and failure inspection trace logs.
+- **Resilient UI Architecture**: Independent loading skeletons, Material You tonal surfaces, empty states, and safe error boundaries that gracefully handle offline backend instances without crashing.
 
 ## Current status
 
-The application layer and account onboarding foundation are fully implemented, verified with comprehensive Vitest unit/component tests and Playwright E2E browser tests.
+- **Milestone 1 (Application/Account/Onboarding)**: Complete.
+- **Milestone 2 (FastAPI Intelligence Workspace Experience)**: Complete.
 
-AI model execution (RAG retrieval, vector databases, LLM inference, document chunking, and retention prediction) is intentionally decoupled and reserved for future service-specific milestones.
+All 6 core workspace views are live, backed by the server-side FastAPI client layer strictly adhering to the `openapi.json` contract. The application has 100% test pass rate across Vitest unit/component/action tests and Playwright end-to-end browser tests.
+
+Next.js operates strictly as the product and presentation shell. AI/RAG model execution, vector search, and analytical computations are delegated to the FastAPI service.
 
 ## Before adding a new feature
 
-Read [`CONTEXT.md`](./CONTEXT.md) first. It contains the project conventions, implementation decisions, and guardrails that should be followed by developers and AI coding agents.
+Read [`CONTEXT.md`](./CONTEXT.md) and [`DESIGN.md`](./DESIGN.md) first. They contain the project conventions, design system tokens, implementation decisions, and guardrails that should be followed by developers and AI coding agents.

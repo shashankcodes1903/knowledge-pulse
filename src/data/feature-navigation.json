@@ -1,0 +1,44 @@
+[
+  {
+    "id": "overview",
+    "label": "This period",
+    "href": "/overview",
+    "description": "Current conversation health and customer activity snapshot",
+    "icon": "Activity"
+  },
+  {
+    "id": "insights",
+    "label": "Insights",
+    "href": "/insights",
+    "description": "Topics, trends, and documentation gaps emerging from customer questions",
+    "icon": "Lightbulb"
+  },
+  {
+    "id": "report",
+    "label": "Report",
+    "href": "/report",
+    "description": "Latest analysis, recommendations, and executive summaries",
+    "icon": "FileText"
+  },
+  {
+    "id": "ask",
+    "label": "Ask",
+    "href": "/ask",
+    "description": "Ask questions grounded in connected knowledge sources",
+    "icon": "MessageSquare"
+  },
+  {
+    "id": "sources",
+    "label": "Sources",
+    "href": "/sources",
+    "description": "Manage connected documents, websites, and index status",
+    "icon": "Database"
+  },
+  {
+    "id": "evaluation",
+    "label": "Evaluation",
+    "href": "/evaluation",
+    "description": "Review retrieval quality, faithfulness, and answer relevance",
+    "icon": "CheckCircle2"
+  }
+]
